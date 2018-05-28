@@ -24,7 +24,7 @@ modules: gen_py test/picodefs.py
 
 modules_install:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
-	$(QUIET) echo "KERNEL==\"$(KMOD_NAME)*\", MODE="0666\"" | tee  /etc/udev/rules.d/99-$(KMOD_NAME).rules
+	$(QUIET) echo "KERNEL==\"$(KMOD_NAME)*\", MODE=\"0666\"" | tee  /etc/udev/rules.d/99-$(KMOD_NAME).rules
 	$(QUIET) /bin/udevadm control --reload-rules
 	$(QUIET) /bin/udevadm trigger
 	$(QUIET) echo "$(KMOD_NAME)" | tee /etc/modules-load.d/$(KMOD_NAME).conf
