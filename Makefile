@@ -35,6 +35,7 @@ modules_install:
 
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+	$(QUIET)rm -f /lib/modules/$(shell uname -r)/extra/$(KMOD_NAME).ko
 	$(QUIET)rm -f /etc/modules-load.d/$(KMOD_NAME).conf
 	$(QUIET)rm -f /etc/udev/rules.d/99-$(KMOD_NAME).rules
 	$(QUIET)rm -f $(PWD)/amc_pico_version.h

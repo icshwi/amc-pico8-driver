@@ -2,10 +2,7 @@ Build
 =====
 
 ```sh
-cp config.example .config
-make gen_py
-make test/picodefs.py
-make
+make modules
 ```
 
 Installation
@@ -16,10 +13,9 @@ Installation
 sudo make install
 ```
 
-* to uninstall:
+* to clean:
 ```sh
-sudo make uninstall
-make clean
+sudo make clean
 ```
 
 Build time configuration
@@ -28,6 +24,14 @@ Build time configuration
 Several build time options are available.
 See [config.example](config.example) for a full listing.
 The provided config.example is a generally useful default.
+
+If one would like to use .config, please define it before make modules.
+
+For example,
+```sh
+cp config.example .config
+make modules
+```
 
 Device Discovery
 ================
