@@ -11,14 +11,20 @@ make modules
 Installation
 ============
 
-* to install and load the driver:
+* to install the driver:
 ```sh
 sudo make install
 ```
+* to setup rules, load module
 
-* to clean:
 ```sh
-sudo make clean
+sudo make kmod_setup
+```
+
+* to clean everything:
+```sh
+make clean
+sudo kmod_clean
 ```
 
 Build time configuration

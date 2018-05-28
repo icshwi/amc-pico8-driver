@@ -22,8 +22,10 @@ all: modules
 modules: gen_py test/picodefs.py
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
-modules_install:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+modules_install clean: 
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
+
+kmod_setup:
 	$(QUIET) echo "KERNEL==\"$(KMOD_NAME)*\", MODE=\"0666\"" | tee  /etc/udev/rules.d/99-$(KMOD_NAME).rules
 	$(QUIET) /bin/udevadm control --reload-rules
 	$(QUIET) /bin/udevadm trigger
@@ -32,14 +34,13 @@ modules_install:
 	$(QUIET) modprobe -rv $(KMOD_NAME)
 	$(QUIET) modprobe -v $(KMOD_NAME)
 
-
-clean:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
-	$(QUIET)rm -f /lib/modules/$(shell uname -r)/extra/$(KMOD_NAME).ko
-	$(QUIET)rm -f /etc/modules-load.d/$(KMOD_NAME).conf
-	$(QUIET)rm -f /etc/udev/rules.d/99-$(KMOD_NAME).rules
-	$(QUIET)rm -f $(PWD)/amc_pico_version.h
-	$(QUIET)rm -f $(PWD)/gen_py
+kmod_clean:
+	$(QUIET) modprobe -rv $(KMOD_NAME)
+	rm -f /lib/modules/$(shell uname -r)/extra/$(KMOD_NAME).ko
+	rm -f /etc/modules-load.d/$(KMOD_NAME).conf
+	rm -f /etc/udev/rules.d/99-$(KMOD_NAME).rules
+	rm -f $(PWD)/amc_pico_version.h
+	rm -f $(PWD)/gen_py
 
 # In case, we don't need anything
 .config:
@@ -55,7 +56,7 @@ test/picodefs.py: gen_py
 	./$< $@
 
 
-.PHONY: all modules modules_install clean
+.PHONY: all modules modules_install clean kmod_setup kmod_setup_clean
 
 
 endif
