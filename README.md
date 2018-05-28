@@ -1,6 +1,9 @@
 Build
 =====
 
+Note that this makefile doesn't support the cross-compiling. Please look at them if one would like to build it with a cross-compiler.
+
+
 ```sh
 make modules
 ```
