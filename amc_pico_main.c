@@ -566,66 +566,67 @@ static int probe(struct pci_dev *dev, const struct pci_device_id *id)
     dev_info(&dev->dev, "probe() with slot '%s'\n",
              dev->slot ? pci_slot_name(dev->slot) : "<no slot>");
 
-	/* Allocate memory for board structure */
-	board = kzalloc(sizeof(struct board_data), GFP_KERNEL);
-	if (!board) {
-		return -ENOMEM;
-	}
+    /* Allocate memory for board structure */
+    board = kzalloc(sizeof(struct board_data), GFP_KERNEL);
+    if (!board) {
+      return -ENOMEM;
+    }
 
     ret = kobject_init_and_add(&board->kobj, &pico_ktype, &dev->dev.kobj, "pico_internal");
     if(ret) {
-        kfree(board);
-        return ret;
+      kfree(board);
+      return ret;
     }
     /* henceforth must call kobject_put(board) for cleanup */
 
-	board->pci_dev = dev;
+    board->pci_dev = dev;
     board->irqmode = dmac_irqmode;
-    if (board->irqmode>2)
-        board->irqmode = 2;
+    if (board->irqmode>2) {
+      board->irqmode = 2;
+    }
 
-	/* store our data (like global variable) */
-	dev_set_drvdata(&dev->dev, board);
+    /* store our data (like global variable) */
+    dev_set_drvdata(&dev->dev, board);
 
     init_waitqueue_head(&board->dma_queue);
 
     ret = pico_pci_setup(dev, board);
     if(!ret) {
-        dev_info(&dev->dev, "FPGA HW version = %08x\n",
-            ioread32(board->bar0 + PICO_ADDR + FPGA_VER_OFFSET));
-        dev_info(&dev->dev, "FPGA HW timestamp = %d\n",
-            ioread32(board->bar0 + PICO_ADDR + FPGA_TS_OFFSET));
+      dev_info(&dev->dev, "FPGA HW version = %08x\n",
+	       ioread32(board->bar0 + PICO_ADDR + FPGA_VER_OFFSET));
+      dev_info(&dev->dev, "FPGA HW timestamp = %d\n",
+	       ioread32(board->bar0 + PICO_ADDR + FPGA_TS_OFFSET));
 
-        dma_reset(board);
+      dma_reset(board);
 
-        ret = pico_cdev_setup(dev, board);
-        if(ret) {
-            pico_pci_cleanup(dev, board);
-        }
+      ret = pico_cdev_setup(dev, board);
+      if(ret) {
+	pico_pci_cleanup(dev, board);
+      }
     }
     if(!ret) {
-        if(0) {}
+      if(0) {}
 #ifdef CONFIG_AMC_PICO_FRIB
-        else if(dmac_site==USER_SITE_FRIB) {
-            init_waitqueue_head(&board->capture_queue);
+      else if(dmac_site==USER_SITE_FRIB) {
+	init_waitqueue_head(&board->capture_queue);
 
-            board->capture_length = FRIB_CAP_LAST-FRIB_CAP_FIRST+4;
-            board->capture_buf = kmalloc(4*board->capture_length, GFP_KERNEL);
-            if(!board->capture_buf) {
-                board->capture_length = 0;
-                dev_err(&dev->dev, "FRIB capture buffer alloc fails.  Capture disabled.\n");
-            }
+	board->capture_length = FRIB_CAP_LAST-FRIB_CAP_FIRST+4;
+	board->capture_buf = kmalloc(4*board->capture_length, GFP_KERNEL);
+	if(!board->capture_buf) {
+	  board->capture_length = 0;
+	  dev_err(&dev->dev, "FRIB capture buffer alloc fails.  Capture disabled.\n");
+	}
 
-            mb();
-            iowrite32(INTR_DMA_DONE|INTR_USER, board->bar0+INTR_CLEAR);
-            iowrite32(INTR_DMA_DONE|INTR_USER, board->bar0+INTR_ENABLE);
-        }
+	mb();
+	iowrite32(INTR_DMA_DONE|INTR_USER, board->bar0+INTR_CLEAR);
+	iowrite32(INTR_DMA_DONE|INTR_USER, board->bar0+INTR_ENABLE);
+      }
 #endif
-        else {
-            mb();
-            iowrite32(INTR_DMA_DONE, board->bar0+INTR_CLEAR);
-            iowrite32(INTR_DMA_DONE, board->bar0+INTR_ENABLE);
-        }
+      else {
+	mb();
+	iowrite32(INTR_DMA_DONE, board->bar0+INTR_CLEAR);
+	iowrite32(INTR_DMA_DONE, board->bar0+INTR_ENABLE);
+      }
     }
     if(ret) kobject_put(&board->kobj);
     return ret;
