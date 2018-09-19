@@ -55,7 +55,10 @@
 
 #define DRV_NAME "AMC-Pico8 Driver"
 
+/* CentOS7 3.10 has already, even if it was introduced  v3.11-rc3-67-g3e9b2ba in linux kernel */
+/*  https://stackoverflow.com/questions/44133917/linux-kernel-patch-version-macro-definition */
 
+#ifndef RHEL_RELEASE
 #if LINUX_VERSION_CODE<KERNEL_VERSION(3,12,0)
 
 #define __ATTRIBUTE_GROUPS(_name)				\
@@ -101,6 +104,8 @@ static inline void sysfs_remove_groups(struct kobject *kobj,
         sysfs_remove_group(kobj, groups[i]);
 }
 #endif /* LINUX_VERSION_CODE<KERNEL_VERSION(3,16,0) */
+#endif /* RHEL_RELEASE  */
+
 
 static
 int version[3] = {1, 1, 0};
